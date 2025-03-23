@@ -1,0 +1,6 @@
+export { ChatsIcon } from './ChatsIcon'
+export { ConfigurationsIcon } from './ConfigurationsIcon'
+export { DatastoreIcon } from './DatastoreIcon'
+export { DocumentsIcon } from './DocumentsIcon'
+export { ProjectIcon } from './ProjectIcon'
+export { LogoIcon } from './LogoIcon'

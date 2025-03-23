@@ -1,0 +1,7 @@
+import { SvgIconProps } from "@mui/material/SvgIcon";
+
+export interface ToggleIconProps extends SvgIconProps {
+    active?: boolean,
+    activeColor?: string,
+    inactiveColor?: string
+}
