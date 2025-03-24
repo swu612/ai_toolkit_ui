@@ -1,15 +1,95 @@
 "use client";
 
-import type { Meta, StoryObj } from "@storybook/react";
-import React, { useState } from "react";
-import { Box, TextField, Button, BoxProps } from "@mui/material";
-import { poppins } from "@/theme/theme";
+import React, { useState, useRef } from "react";
+import { Box, BoxProps } from "@mui/material";
+import { ChatContainer, ChatMessage } from "./ChatContainer";
+import { ChatForm } from "./ChatForm";
 
-interface PageProps extends BoxProps {
-  onSubmit?: () => void;
-}
+export const Page: React.FC<BoxProps> = (props) => {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const loaderInterval = useRef<NodeJS.Timeout | null>(null);
 
-export const Page: React.FC<PageProps> = ({ onSubmit, ...rest }) => {
+  const generateUniqueID = (): string => {
+    const timestamp = Date.now();
+    const randomNumber = Math.random();
+    const hexadecimalString = randomNumber.toString(16);
+    return `id-${timestamp}-${hexadecimalString}`;
+  };
+
+  const startLoader = (id: string) => {
+    let dots = "";
+    loaderInterval.current = setInterval(() => {
+      dots = dots.length === 3 ? "" : dots + ".";
+      setMessages((prev) =>
+        prev.map((msg) => (msg.id === id ? { ...msg, content: dots } : msg))
+      );
+    }, 300);
+  };
+
+  const stopLoader = () => {
+    if (loaderInterval.current) {
+      clearInterval(loaderInterval.current);
+      loaderInterval.current = null;
+    }
+  };
+
+  const typeText = (id: string, text: string) => {
+    let index = 0;
+    const intervalId = setInterval(() => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === id
+            ? { ...msg, content: text.substring(0, index + 1) }
+            : msg
+        )
+      );
+      index++;
+      if (index === text.length) {
+        clearInterval(intervalId);
+      }
+    }, 20);
+  };
+
+  const handleSubmit = async (prompt: string) => {
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: generateUniqueID(),
+      isAi: false,
+      content: prompt,
+    };
+    setMessages((prev) => [...prev, userMessage]);
+
+    // Add bot message placeholder
+    const botMessageId = generateUniqueID();
+    const botMessage: ChatMessage = {
+      id: botMessageId,
+      isAi: true,
+      content: "",
+    };
+    setMessages((prev) => [...prev, botMessage]);
+
+    // Start loader
+    startLoader(botMessageId);
+
+    // Simulate server fetch (replace with actual fetch logic if needed)
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const botResponse =
+        "This is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the botThis is a simulated response from the bot.";
+      stopLoader();
+      typeText(botMessageId, botResponse);
+    } catch (err) {
+      stopLoader();
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === botMessageId
+            ? { ...msg, content: "Something went wrong" }
+            : msg
+        )
+      );
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -18,90 +98,15 @@ export const Page: React.FC<PageProps> = ({ onSubmit, ...rest }) => {
         backgroundColor: "white",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
         justifyContent: "space-between",
+        overflow: "hidden",
+        m: 0,
+        p: 0,
       }}
+      {...props}
     >
-      {/* Chat container */}
-      <Box
-        sx={{
-          flex: 1,
-          maxWidth: "100",
-          maxHeight: "100%",
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          paddingBottom: "20px",
-          scrollBehavior: "smooth",
-          // Hide scrollbar
-          "&::-webkit-scrollbar": { display: "none" },
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        {/* 
-          Chat messages would go here, each message could be a separate Box 
-          or component styled similarly to your .wrapper / .chat / .message, etc.
-        */}
-      </Box>
-
-      {/* Form area */}
-      <Box
-        component="form"
-        onSubmit={onSubmit}
-        sx={{
-          margin: "0 auto",
-          borderRadius: "20px",
-          border: "2px solid rgb(202, 202, 202)",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-          backgroundColor: "white",
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-          boxSizing: "border-box",
-          p: 1,
-          gap: 2,
-        }}
-      >
-        <TextField
-          multiline
-          rows={1}
-          placeholder="Type Your Question Here"
-          variant="outlined"
-          sx={{
-            flex: 1,
-            "& .MuiOutlinedInput-root": {
-              fontSize: 14,
-              color: "black",
-              fontWeight: 400,
-              fontFamily: poppins.style.fontFamily,
-              textTransform: "none",
-              backgroundColor: "transparent",
-              borderRadius: "5px",
-              "& fieldset": {
-                border: "none",
-              },
-            },
-          }}
-        />
-
-        <Button
-          type="submit"
-          sx={{
-            outline: 0,
-            border: 0,
-            cursor: "pointer",
-            backgroundColor: "transparent",
-          }}
-        >
-          <Box
-            component="img"
-            src="../../public/send.svg"
-            sx={{ width: "30px", height: "30px" }}
-          />
-        </Button>
-      </Box>
+      <ChatContainer messages={messages} />
+      <ChatForm onSubmit={handleSubmit} />
     </Box>
   );
 };

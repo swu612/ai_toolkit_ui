@@ -10,7 +10,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body
+        style={{
+          margin: 0,
+          padding: 0,
+          width: "100%",
+          height: "100%",
+        }}
+      >
         <div style={{ display: "flex", minHeight: "100vh" }}>
           <Sidebar />
           <main style={{ flex: 1, padding: "1rem" }}>{children}</main>

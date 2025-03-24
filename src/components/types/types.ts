@@ -5,3 +5,9 @@ export interface ToggleIconProps extends SvgIconProps {
     activeColor?: string,
     inactiveColor?: string
 }
+
+export interface ChatMessage {
+    id: string;
+    isAi: boolean;
+    content: string;
+  }
